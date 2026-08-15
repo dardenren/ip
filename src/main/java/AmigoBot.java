@@ -38,19 +38,34 @@ public class AmigoBot {
             String input = scanner.nextLine();
             System.out.println(line);
             try {
-            if (input.equals("bye")) {
+            String[] words = input.split(" ", 2);
+            String commandWord = words[0].toUpperCase();
+            String arguments = words.length > 1 ? words[1].trim() : "";
+
+            Command command;
+            try {
+                command = Command.valueOf(commandWord);
+            } catch (IllegalArgumentException e) {
+                command = Command.UNKNOWN;
+            }
+
+            switch (command) {
+            case BYE:
                 System.out.println("Adios amigo! Hope to see you again soon!");
-            } else if (input.equals("list")) {
+                break;
+            case LIST:
                 System.out.println("Here are the tasks in your list:");
                 for (int i = 0; i < tasks.size(); i++) {
                     System.out.println((i + 1) + "." + tasks.get(i));
                 }
-            } else if (input.equals("mark") || input.equals("unmark") || input.equals("delete")) {
-                throw new AmigoBotException("Ay caramba! Please provide a task number. Example: mark 1");
-            } else if (input.startsWith("delete ")) {
+                break;
+            case DELETE: {
+                if (arguments.isEmpty()) {
+                    throw new AmigoBotException("Ay caramba! Please provide a task number. Example: delete 1");
+                }
                 int index;
                 try {
-                    index = Integer.parseInt(input.substring(7)) - 1;
+                    index = Integer.parseInt(arguments) - 1;
                 } catch (NumberFormatException e) {
                     throw new AmigoBotException("Ay caramba! That's not a valid number, compadre.");
                 }
@@ -61,10 +76,15 @@ public class AmigoBot {
                 System.out.println("Noted. I've removed this task:");
                 System.out.println("  " + removed);
                 System.out.println("Now you have " + tasks.size() + " tasks in the list.");
-            } else if (input.startsWith("mark ")) {
+                break;
+            }
+            case MARK: {
+                if (arguments.isEmpty()) {
+                    throw new AmigoBotException("Ay caramba! Please provide a task number. Example: mark 1");
+                }
                 int index;
                 try {
-                    index = Integer.parseInt(input.substring(5)) - 1;
+                    index = Integer.parseInt(arguments) - 1;
                 } catch (NumberFormatException e) {
                     throw new AmigoBotException("Ay caramba! That's not a valid number, compadre.");
                 }
@@ -74,10 +94,15 @@ public class AmigoBot {
                 tasks.get(index).markAsDone();
                 System.out.println("Nice! I've marked this task as done:");
                 System.out.println("  " + tasks.get(index));
-            } else if (input.startsWith("unmark ")) {
+                break;
+            }
+            case UNMARK: {
+                if (arguments.isEmpty()) {
+                    throw new AmigoBotException("Ay caramba! Please provide a task number. Example: unmark 1");
+                }
                 int index;
                 try {
-                    index = Integer.parseInt(input.substring(7)) - 1;
+                    index = Integer.parseInt(arguments) - 1;
                 } catch (NumberFormatException e) {
                     throw new AmigoBotException("Ay caramba! That's not a valid number, compadre.");
                 }
@@ -87,24 +112,26 @@ public class AmigoBot {
                 tasks.get(index).markAsNotDone();
                 System.out.println("OK, I've marked this task as not done yet:");
                 System.out.println("  " + tasks.get(index));
-            } else if (input.equals("todo") || input.startsWith("todo ")) {
-                String desc = input.substring(4).trim();
-                if (desc.isEmpty()) {
+                break;
+            }
+            case TODO: {
+                if (arguments.isEmpty()) {
                     throw new AmigoBotException("Ay caramba! The description of a todo cannot be empty.");
                 }
-                tasks.add(new Todo(desc));
+                tasks.add(new Todo(arguments));
                 System.out.println("Got it. I've added this task:");
                 System.out.println("  " + tasks.get(tasks.size() - 1));
                 System.out.println("Now you have " + tasks.size() + " tasks in the list.");
-            } else if (input.equals("deadline") || input.startsWith("deadline ")) {
-                String deadlineArgs = input.substring(8).trim();
-                if (deadlineArgs.isEmpty()) {
+                break;
+            }
+            case DEADLINE: {
+                if (arguments.isEmpty()) {
                     throw new AmigoBotException("Ay caramba! The description of a deadline cannot be empty.");
                 }
-                if (!deadlineArgs.contains(" /by ")) {
+                if (!arguments.contains(" /by ")) {
                     throw new AmigoBotException("Ay caramba! A deadline needs a /by date. Example: deadline return book /by Sunday");
                 }
-                String[] parts = deadlineArgs.split(" /by ", 2);
+                String[] parts = arguments.split(" /by ", 2);
                 String desc = parts[0].trim();
                 String by = parts[1].trim();
                 if (by.isEmpty()) {
@@ -114,15 +141,16 @@ public class AmigoBot {
                 System.out.println("Got it. I've added this task:");
                 System.out.println("  " + tasks.get(tasks.size() - 1));
                 System.out.println("Now you have " + tasks.size() + " tasks in the list.");
-            } else if (input.equals("event") || input.startsWith("event ")) {
-                String eventArgs = input.substring(5).trim();
-                if (eventArgs.isEmpty()) {
+                break;
+            }
+            case EVENT: {
+                if (arguments.isEmpty()) {
                     throw new AmigoBotException("Ay caramba! The description of an event cannot be empty.");
                 }
-                if (!eventArgs.contains(" /from ")) {
+                if (!arguments.contains(" /from ")) {
                     throw new AmigoBotException("Ay caramba! An event needs a /from time. Example: event meeting /from Mon 2pm /to 4pm");
                 }
-                String[] parts = eventArgs.split(" /from ", 2);
+                String[] parts = arguments.split(" /from ", 2);
                 String desc = parts[0].trim();
                 if (!parts[1].contains(" /to ")) {
                     throw new AmigoBotException("Ay caramba! An event needs a /to time. Example: event meeting /from Mon 2pm /to 4pm");
@@ -140,14 +168,17 @@ public class AmigoBot {
                 System.out.println("Got it. I've added this task:");
                 System.out.println("  " + tasks.get(tasks.size() - 1));
                 System.out.println("Now you have " + tasks.size() + " tasks in the list.");
-            } else {
+                break;
+            }
+            case UNKNOWN:
+            default:
                 throw new AmigoBotException("Ay caramba! I don't know what that means, compadre :-(");
             }
             } catch (AmigoBotException e) {
                 System.out.println(e.getMessage());
             }
             System.out.println(line);
-            if (input.equals("bye")) {
+            if (input.equalsIgnoreCase("bye")) {
                 break;
             }
         }
