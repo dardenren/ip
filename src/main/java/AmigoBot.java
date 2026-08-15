@@ -56,7 +56,7 @@ public class AmigoBot {
                 System.out.println("  " + tasks[index]);
             } else if (input.startsWith("todo ")) {
                 String desc = input.substring(5);
-                tasks[taskCount] = new Task(desc);
+                tasks[taskCount] = new Todo(desc);
                 taskCount++;
                 System.out.println("Got it. I've added this task:");
                 System.out.println("  " + tasks[taskCount - 1]);
@@ -65,7 +65,7 @@ public class AmigoBot {
                 String[] parts = input.substring(9).split(" /by ", 2);
                 String desc = parts[0];
                 String by = parts[1];
-                tasks[taskCount] = new Task(desc, by);
+                tasks[taskCount] = new Deadline(desc, by);
                 taskCount++;
                 System.out.println("Got it. I've added this task:");
                 System.out.println("  " + tasks[taskCount - 1]);
@@ -76,7 +76,7 @@ public class AmigoBot {
                 String[] timeParts = parts[1].split(" /to ", 2);
                 String from = timeParts[0];
                 String to = timeParts[1];
-                tasks[taskCount] = new Task(desc, from, to);
+                tasks[taskCount] = new Event(desc, from, to);
                 taskCount++;
                 System.out.println("Got it. I've added this task:");
                 System.out.println("  " + tasks[taskCount - 1]);

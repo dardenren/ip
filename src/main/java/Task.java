@@ -1,34 +1,14 @@
 /**
- * Represents a task with a description, done status, and optional type-specific fields.
- * The type field indicates the kind of task: "T" for ToDo, "D" for Deadline, "E" for Event.
+ * Represents a task with a description and a done status.
+ * Subclasses (Todo, Deadline, Event) add type-specific behavior.
  */
 public class Task {
     protected String description;
     protected boolean isDone;
-    protected String type;
-    protected String by;
-    protected String from;
-    protected String to;
 
     public Task(String description) {
         this.description = description;
         this.isDone = false;
-        this.type = "T";
-    }
-
-    public Task(String description, String by) {
-        this.description = description;
-        this.isDone = false;
-        this.type = "D";
-        this.by = by;
-    }
-
-    public Task(String description, String from, String to) {
-        this.description = description;
-        this.isDone = false;
-        this.type = "E";
-        this.from = from;
-        this.to = to;
     }
 
     public String getStatusIcon() {
@@ -45,12 +25,6 @@ public class Task {
 
     @Override
     public String toString() {
-        String result = "[" + type + "][" + getStatusIcon() + "] " + description;
-        if (type.equals("D")) {
-            result += " (by: " + by + ")";
-        } else if (type.equals("E")) {
-            result += " (from: " + from + " to: " + to + ")";
-        }
-        return result;
+        return "[" + getStatusIcon() + "] " + description;
     }
 }
