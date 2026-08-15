@@ -1,6 +1,8 @@
+import java.util.Scanner;
+
 public class AmigoBot {
     public static void main(String[] args) {
-        String line = "____________________________________________________________";
+        String line = "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*";
 
         String banner = "    _          _           ____        _   \n"
                 + "   / \\   _ __ (_) __ _  ___| __ )  ___ | |_ \n"
@@ -14,7 +16,21 @@ public class AmigoBot {
         System.out.println("Hola amigo! I'm AmigoBot.");
         System.out.println("What can I do for you, compadre?");
         System.out.println(line);
-        System.out.println("Adios amigo! Hope to see you again soon!");
-        System.out.println(line);
+
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            String input = scanner.nextLine();
+            System.out.println(line);
+            if (input.equals("bye")) {
+                System.out.println("Adios amigo! Hope to see you again soon!");
+            } else {
+                System.out.println(input);
+            }
+            System.out.println(line);
+            if (input.equals("bye")) {
+                break;
+            }
+        }
+        scanner.close();
     }
 }
