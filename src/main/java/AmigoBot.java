@@ -45,8 +45,22 @@ public class AmigoBot {
                 for (int i = 0; i < tasks.size(); i++) {
                     System.out.println((i + 1) + "." + tasks.get(i));
                 }
-            } else if (input.equals("mark") || input.equals("unmark")) {
+            } else if (input.equals("mark") || input.equals("unmark") || input.equals("delete")) {
                 throw new AmigoBotException("Ay caramba! Please provide a task number. Example: mark 1");
+            } else if (input.startsWith("delete ")) {
+                int index;
+                try {
+                    index = Integer.parseInt(input.substring(7)) - 1;
+                } catch (NumberFormatException e) {
+                    throw new AmigoBotException("Ay caramba! That's not a valid number, compadre.");
+                }
+                if (index < 0 || index >= tasks.size()) {
+                    throw new AmigoBotException("Ay caramba! Task number " + (index + 1) + " does not exist. You have " + tasks.size() + " tasks.");
+                }
+                Task removed = tasks.remove(index);
+                System.out.println("Noted. I've removed this task:");
+                System.out.println("  " + removed);
+                System.out.println("Now you have " + tasks.size() + " tasks in the list.");
             } else if (input.startsWith("mark ")) {
                 int index;
                 try {
