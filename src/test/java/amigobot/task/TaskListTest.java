@@ -59,4 +59,30 @@ public class TaskListTest {
         TaskList list = new TaskList();
         assertEquals(0, list.size());
     }
+
+    @Test
+    public void findTasks_matchingKeyword_returnsMatches() {
+        TaskList list = new TaskList();
+        list.addTask(new Todo("read book"));
+        list.addTask(new Todo("return book"));
+        list.addTask(new Todo("buy groceries"));
+        assertEquals(2, list.findTasks("book").size());
+    }
+
+    @Test
+    public void findTasks_caseInsensitive_returnsMatches() {
+        TaskList list = new TaskList();
+        list.addTask(new Todo("read Book"));
+        list.addTask(new Todo("buy groceries"));
+        assertEquals(1, list.findTasks("BOOK").size());
+        assertEquals("read Book", list.findTasks("book").get(0).getDescription());
+    }
+
+    @Test
+    public void findTasks_noMatch_returnsEmptyList() {
+        TaskList list = new TaskList();
+        list.addTask(new Todo("read book"));
+        list.addTask(new Todo("buy groceries"));
+        assertEquals(0, list.findTasks("xyz").size());
+    }
 }
