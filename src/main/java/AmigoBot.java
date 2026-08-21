@@ -223,6 +223,43 @@ public class AmigoBot {
                 System.out.println("Now you have " + tasks.size() + " tasks in the list.");
                 break;
             }
+            case ON: {
+                if (arguments.isEmpty()) {
+                    throw new AmigoBotException("Ay caramba! Please provide a date. Example: on 2025-08-20");
+                }
+                LocalDate target = tryParseDate(arguments);
+                if (target == null) {
+                    throw new AmigoBotException("Ay caramba! Invalid date format. Please use yyyy-MM-dd or dd/mm/yyyy.");
+                }
+                System.out.println("Here are the tasks on " + target.format(
+                        java.time.format.DateTimeFormatter.ofPattern("MMM d yyyy")) + ":");
+                int count = 0;
+                for (int i = 0; i < tasks.size(); i++) {
+                    Task task = tasks.get(i);
+                    boolean match = false;
+                    if (task instanceof Deadline) {
+                        Deadline d = (Deadline) task;
+                        match = d.byDate != null && d.byDate.equals(target);
+                    } else if (task instanceof Event) {
+                        Event e = (Event) task;
+                        if (e.fromDate != null && e.toDate != null) {
+                            match = !target.isBefore(e.fromDate) && !target.isAfter(e.toDate);
+                        } else if (e.fromDate != null) {
+                            match = e.fromDate.equals(target);
+                        } else if (e.toDate != null) {
+                            match = e.toDate.equals(target);
+                        }
+                    }
+                    if (match) {
+                        count++;
+                        System.out.println(count + "." + task);
+                    }
+                }
+                if (count == 0) {
+                    System.out.println("No tasks found on that date, compadre!");
+                }
+                break;
+            }
             case UNKNOWN:
             default:
                 throw new AmigoBotException("Ay caramba! I don't know what that means, compadre :-(");
