@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,7 +77,11 @@ public class Storage {
             if (parts.length < 4) {
                 throw new IllegalArgumentException("deadline missing /by field");
             }
-            task = new Deadline(description, parts[3]);
+            try {
+                task = new Deadline(description, LocalDate.parse(parts[3]));
+            } catch (Exception e) {
+                task = new Deadline(description, parts[3]);
+            }
             break;
         case "E":
             if (parts.length < 5) {
@@ -103,7 +108,8 @@ public class Storage {
             return "E | " + done + " | " + e.description + " | " + e.from + " | " + e.to;
         } else if (task instanceof Deadline) {
             Deadline d = (Deadline) task;
-            return "D | " + done + " | " + d.description + " | " + d.by;
+            String byValue = d.byDate != null ? d.byDate.toString() : d.byString;
+            return "D | " + done + " | " + d.description + " | " + byValue;
         } else {
             return "T | " + done + " | " + task.description;
         }

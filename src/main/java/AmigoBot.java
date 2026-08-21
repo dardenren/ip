@@ -1,8 +1,39 @@
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class AmigoBot {
+
+    /**
+     * Tries to parse a date string into a LocalDate.
+     * Accepts formats like yyyy-mm-dd, dd/mm/yyyy, dd-mm-yyyy, yyyy/mm/dd, etc.
+     * Returns null if the string is not a recognizable date (e.g. "tomorrow").
+     */
+    private static LocalDate tryParseDate(String input) {
+        String normalized = input.replace("/", "-").replace(".", "-");
+        String[] parts = normalized.split("-");
+        if (parts.length != 3) {
+            return null;
+        }
+        try {
+            if (parts[0].length() == 4) {
+                int year = Integer.parseInt(parts[0]);
+                int month = Integer.parseInt(parts[1]);
+                int day = Integer.parseInt(parts[2]);
+                return LocalDate.of(year, month, day);
+            } else if (parts[2].length() == 4) {
+                int day = Integer.parseInt(parts[0]);
+                int month = Integer.parseInt(parts[1]);
+                int year = Integer.parseInt(parts[2]);
+                return LocalDate.of(year, month, day);
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
+    }
+
     public static void main(String[] args) {
         String line = "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*";
 
@@ -145,11 +176,16 @@ public class AmigoBot {
                 }
                 String[] parts = arguments.split(" /by ", 2);
                 String desc = parts[0].trim();
-                String by = parts[1].trim();
-                if (by.isEmpty()) {
+                String byStr = parts[1].trim();
+                if (byStr.isEmpty()) {
                     throw new AmigoBotException("Ay caramba! The /by date of a deadline cannot be empty.");
                 }
-                tasks.add(new Deadline(desc, by));
+                LocalDate byDate = tryParseDate(byStr);
+                if (byDate != null) {
+                    tasks.add(new Deadline(desc, byDate));
+                } else {
+                    tasks.add(new Deadline(desc, byStr));
+                }
                 storage.save(tasks);
                 System.out.println("Got it. I've added this task:");
                 System.out.println("  " + tasks.get(tasks.size() - 1));

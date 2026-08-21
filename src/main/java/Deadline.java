@@ -1,17 +1,38 @@
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 /**
- * Represents a task that needs to be done before a specific date/time.
+ * Represents a task that needs to be done before a specific date.
+ * The date can be a parsed LocalDate or a plain string (e.g. "tomorrow").
  */
 public class Deadline extends Task {
 
-    protected String by;
+    private static final DateTimeFormatter DISPLAY_FORMAT = DateTimeFormatter.ofPattern("MMM d yyyy");
 
+    protected LocalDate byDate;
+    protected String byString;
+
+    /**
+     * Creates a Deadline with a parsed date.
+     */
+    public Deadline(String description, LocalDate by) {
+        super(description);
+        this.byDate = by;
+        this.byString = null;
+    }
+
+    /**
+     * Creates a Deadline with a plain string date (e.g. "tomorrow", "next week").
+     */
     public Deadline(String description, String by) {
         super(description);
-        this.by = by;
+        this.byDate = null;
+        this.byString = by;
     }
 
     @Override
     public String toString() {
-        return "[D]" + super.toString() + " (by: " + by + ")";
+        String display = byDate != null ? byDate.format(DISPLAY_FORMAT) : byString;
+        return "[D]" + super.toString() + " (by: " + display + ")";
     }
 }
