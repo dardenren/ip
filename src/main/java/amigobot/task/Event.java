@@ -50,22 +50,48 @@ public class Event extends Task {
         this.toString = toString;
     }
 
+    /**
+     * Returns the start date as a LocalDate, or null if stored as a string.
+     *
+     * @return the start date, or null.
+     */
     public LocalDate getFromDate() {
         return fromDate;
     }
 
+    /**
+     * Returns the start time as a plain string, or null if stored as a LocalDate.
+     *
+     * @return the start string, or null.
+     */
     public String getFromString() {
         return fromString;
     }
 
+    /**
+     * Returns the end date as a LocalDate, or null if stored as a string.
+     *
+     * @return the end date, or null.
+     */
     public LocalDate getToDate() {
         return toDate;
     }
 
+    /**
+     * Returns the end time as a plain string, or null if stored as a LocalDate.
+     *
+     * @return the end string, or null.
+     */
     public String getToString() {
         return this.toString;
     }
 
+    /**
+     * Returns a string representation prefixed with [E] and the time range,
+     * e.g. "[E][ ] meeting (from: Mon 2pm to: 4pm)".
+     *
+     * @return the formatted event string.
+     */
     @Override
     public String toString() {
         String fromDisplay = fromDate != null ? fromDate.format(DISPLAY_FORMAT) : fromString;
