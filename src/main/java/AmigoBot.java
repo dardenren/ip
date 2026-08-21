@@ -1,8 +1,39 @@
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class AmigoBot {
+
+    /**
+     * Tries to parse a date string into a LocalDate.
+     * Accepts formats like yyyy-mm-dd, dd/mm/yyyy, dd-mm-yyyy, yyyy/mm/dd, etc.
+     * Returns null if the string is not a recognizable date (e.g. "tomorrow").
+     */
+    private static LocalDate tryParseDate(String input) {
+        String normalized = input.replace("/", "-").replace(".", "-");
+        String[] parts = normalized.split("-");
+        if (parts.length != 3) {
+            return null;
+        }
+        try {
+            if (parts[0].length() == 4) {
+                int year = Integer.parseInt(parts[0]);
+                int month = Integer.parseInt(parts[1]);
+                int day = Integer.parseInt(parts[2]);
+                return LocalDate.of(year, month, day);
+            } else if (parts[2].length() == 4) {
+                int day = Integer.parseInt(parts[0]);
+                int month = Integer.parseInt(parts[1]);
+                int year = Integer.parseInt(parts[2]);
+                return LocalDate.of(year, month, day);
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
+    }
+
     public static void main(String[] args) {
         String line = "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*";
 
@@ -145,11 +176,16 @@ public class AmigoBot {
                 }
                 String[] parts = arguments.split(" /by ", 2);
                 String desc = parts[0].trim();
-                String by = parts[1].trim();
-                if (by.isEmpty()) {
+                String byStr = parts[1].trim();
+                if (byStr.isEmpty()) {
                     throw new AmigoBotException("Ay caramba! The /by date of a deadline cannot be empty.");
                 }
-                tasks.add(new Deadline(desc, by));
+                LocalDate byDate = tryParseDate(byStr);
+                if (byDate != null) {
+                    tasks.add(new Deadline(desc, byDate));
+                } else {
+                    tasks.add(new Deadline(desc, byStr));
+                }
                 storage.save(tasks);
                 System.out.println("Got it. I've added this task:");
                 System.out.println("  " + tasks.get(tasks.size() - 1));
@@ -177,11 +213,51 @@ public class AmigoBot {
                 if (to.isEmpty()) {
                     throw new AmigoBotException("Ay caramba! The /to time of an event cannot be empty.");
                 }
-                tasks.add(new Event(desc, from, to));
+                LocalDate fromDate = tryParseDate(from);
+                LocalDate toDate = tryParseDate(to);
+                tasks.add(new Event(desc, fromDate, fromDate == null ? from : null,
+                        toDate, toDate == null ? to : null));
                 storage.save(tasks);
                 System.out.println("Got it. I've added this task:");
                 System.out.println("  " + tasks.get(tasks.size() - 1));
                 System.out.println("Now you have " + tasks.size() + " tasks in the list.");
+                break;
+            }
+            case ON: {
+                if (arguments.isEmpty()) {
+                    throw new AmigoBotException("Ay caramba! Please provide a date. Example: on 2025-08-20");
+                }
+                LocalDate target = tryParseDate(arguments);
+                if (target == null) {
+                    throw new AmigoBotException("Ay caramba! Invalid date format. Please use yyyy-MM-dd or dd/mm/yyyy.");
+                }
+                System.out.println("Here are the tasks on " + target.format(
+                        java.time.format.DateTimeFormatter.ofPattern("MMM d yyyy")) + ":");
+                int count = 0;
+                for (int i = 0; i < tasks.size(); i++) {
+                    Task task = tasks.get(i);
+                    boolean match = false;
+                    if (task instanceof Deadline) {
+                        Deadline d = (Deadline) task;
+                        match = d.byDate != null && d.byDate.equals(target);
+                    } else if (task instanceof Event) {
+                        Event e = (Event) task;
+                        if (e.fromDate != null && e.toDate != null) {
+                            match = !target.isBefore(e.fromDate) && !target.isAfter(e.toDate);
+                        } else if (e.fromDate != null) {
+                            match = e.fromDate.equals(target);
+                        } else if (e.toDate != null) {
+                            match = e.toDate.equals(target);
+                        }
+                    }
+                    if (match) {
+                        count++;
+                        System.out.println(count + "." + task);
+                    }
+                }
+                if (count == 0) {
+                    System.out.println("No tasks found on that date, compadre!");
+                }
                 break;
             }
             case UNKNOWN:

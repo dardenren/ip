@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,13 +77,31 @@ public class Storage {
             if (parts.length < 4) {
                 throw new IllegalArgumentException("deadline missing /by field");
             }
-            task = new Deadline(description, parts[3]);
+            try {
+                task = new Deadline(description, LocalDate.parse(parts[3]));
+            } catch (Exception e) {
+                task = new Deadline(description, parts[3]);
+            }
             break;
         case "E":
             if (parts.length < 5) {
                 throw new IllegalArgumentException("event missing /from or /to field");
             }
-            task = new Event(description, parts[3], parts[4]);
+            LocalDate fromDate = null;
+            String fromString = null;
+            LocalDate toDate = null;
+            String toString = null;
+            try {
+                fromDate = LocalDate.parse(parts[3]);
+            } catch (Exception e) {
+                fromString = parts[3];
+            }
+            try {
+                toDate = LocalDate.parse(parts[4]);
+            } catch (Exception e) {
+                toString = parts[4];
+            }
+            task = new Event(description, fromDate, fromString, toDate, toString);
             break;
         default:
             throw new IllegalArgumentException("unknown task type '" + type + "'");
@@ -100,10 +119,13 @@ public class Storage {
         int done = task.isDone ? 1 : 0;
         if (task instanceof Event) {
             Event e = (Event) task;
-            return "E | " + done + " | " + e.description + " | " + e.from + " | " + e.to;
+            String fromValue = e.fromDate != null ? e.fromDate.toString() : e.fromString;
+            String toValue = e.toDate != null ? e.toDate.toString() : e.toString;
+            return "E | " + done + " | " + e.description + " | " + fromValue + " | " + toValue;
         } else if (task instanceof Deadline) {
             Deadline d = (Deadline) task;
-            return "D | " + done + " | " + d.description + " | " + d.by;
+            String byValue = d.byDate != null ? d.byDate.toString() : d.byString;
+            return "D | " + done + " | " + d.description + " | " + byValue;
         } else {
             return "T | " + done + " | " + task.description;
         }
