@@ -33,7 +33,13 @@ public class AmigoBot {
         System.out.println(line);
 
         Storage storage = new Storage(java.nio.file.Paths.get("data", "amigobot.txt").toString());
-        ArrayList<Task> tasks = new ArrayList<>();
+        ArrayList<Task> tasks;
+        try {
+            tasks = storage.load();
+        } catch (IOException e) {
+            System.out.println("Ay caramba! Could not load saved tasks: " + e.getMessage());
+            tasks = new ArrayList<>();
+        }
 
         Scanner scanner = new Scanner(System.in);
         while (true) {
