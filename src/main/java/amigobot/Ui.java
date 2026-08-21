@@ -1,10 +1,10 @@
 package amigobot;
 
-import amigobot.task.Task;
-import amigobot.task.TaskList;
-
 import java.util.ArrayList;
 import java.util.Scanner;
+
+import amigobot.task.Task;
+import amigobot.task.TaskList;
 
 /**
  * Handles all interactions with the user: reading input and printing output.
