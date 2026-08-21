@@ -142,6 +142,17 @@ public class Ui {
         }
     }
 
+    public void showFoundTasks(ArrayList<Task> matchingTasks) {
+        System.out.println("Here are the matching tasks in your list:");
+        if (matchingTasks.isEmpty()) {
+            System.out.println("No matching tasks found, compadre!");
+        } else {
+            for (int i = 0; i < matchingTasks.size(); i++) {
+                System.out.println((i + 1) + "." + matchingTasks.get(i));
+            }
+        }
+    }
+
     /**
      * Prints tasks that fall on the given date.
      *

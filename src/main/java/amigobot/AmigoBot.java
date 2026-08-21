@@ -275,6 +275,16 @@ public class AmigoBot {
                                 matching);
                         break;
                     }
+                    case FIND: {
+                        if (arguments.isEmpty()) {
+                            throw new AmigoBotException(
+                                    "Ay caramba! Please provide a keyword to search for."
+                                    + " Example: find book");
+                        }
+                        ArrayList<Task> found = tasks.findTasks(arguments);
+                        ui.showFoundTasks(found);
+                        break;
+                    }
                     case UNKNOWN:
                     default:
                         throw new AmigoBotException(
