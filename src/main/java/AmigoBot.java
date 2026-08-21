@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -31,6 +32,7 @@ public class AmigoBot {
         System.out.println("What can I do for you, compadre?");
         System.out.println(line);
 
+        Storage storage = new Storage(java.nio.file.Paths.get("data", "amigobot.txt").toString());
         ArrayList<Task> tasks = new ArrayList<>();
 
         Scanner scanner = new Scanner(System.in);
@@ -73,6 +75,7 @@ public class AmigoBot {
                     throw new AmigoBotException("Ay caramba! Task number " + (index + 1) + " does not exist. You have " + tasks.size() + " tasks.");
                 }
                 Task removed = tasks.remove(index);
+                storage.save(tasks);
                 System.out.println("Noted. I've removed this task:");
                 System.out.println("  " + removed);
                 System.out.println("Now you have " + tasks.size() + " tasks in the list.");
@@ -92,6 +95,7 @@ public class AmigoBot {
                     throw new AmigoBotException("Ay caramba! Task number " + (index + 1) + " does not exist. You have " + tasks.size() + " tasks.");
                 }
                 tasks.get(index).markAsDone();
+                storage.save(tasks);
                 System.out.println("Nice! I've marked this task as done:");
                 System.out.println("  " + tasks.get(index));
                 break;
@@ -110,6 +114,7 @@ public class AmigoBot {
                     throw new AmigoBotException("Ay caramba! Task number " + (index + 1) + " does not exist. You have " + tasks.size() + " tasks.");
                 }
                 tasks.get(index).markAsNotDone();
+                storage.save(tasks);
                 System.out.println("OK, I've marked this task as not done yet:");
                 System.out.println("  " + tasks.get(index));
                 break;
@@ -119,6 +124,7 @@ public class AmigoBot {
                     throw new AmigoBotException("Ay caramba! The description of a todo cannot be empty.");
                 }
                 tasks.add(new Todo(arguments));
+                storage.save(tasks);
                 System.out.println("Got it. I've added this task:");
                 System.out.println("  " + tasks.get(tasks.size() - 1));
                 System.out.println("Now you have " + tasks.size() + " tasks in the list.");
@@ -138,6 +144,7 @@ public class AmigoBot {
                     throw new AmigoBotException("Ay caramba! The /by date of a deadline cannot be empty.");
                 }
                 tasks.add(new Deadline(desc, by));
+                storage.save(tasks);
                 System.out.println("Got it. I've added this task:");
                 System.out.println("  " + tasks.get(tasks.size() - 1));
                 System.out.println("Now you have " + tasks.size() + " tasks in the list.");
@@ -165,6 +172,7 @@ public class AmigoBot {
                     throw new AmigoBotException("Ay caramba! The /to time of an event cannot be empty.");
                 }
                 tasks.add(new Event(desc, from, to));
+                storage.save(tasks);
                 System.out.println("Got it. I've added this task:");
                 System.out.println("  " + tasks.get(tasks.size() - 1));
                 System.out.println("Now you have " + tasks.size() + " tasks in the list.");
@@ -176,6 +184,8 @@ public class AmigoBot {
             }
             } catch (AmigoBotException e) {
                 System.out.println(e.getMessage());
+            } catch (IOException e) {
+                System.out.println("Ay caramba! Could not save tasks: " + e.getMessage());
             }
             System.out.println(line);
             if (input.equalsIgnoreCase("bye")) {
