@@ -1,11 +1,5 @@
 package amigobot;
 
-import amigobot.task.Deadline;
-import amigobot.task.Event;
-import amigobot.task.Task;
-import amigobot.task.TaskList;
-import amigobot.task.Todo;
-
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,6 +8,12 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import amigobot.task.Deadline;
+import amigobot.task.Event;
+import amigobot.task.Task;
+import amigobot.task.TaskList;
+import amigobot.task.Todo;
 
 /**
  * Handles saving and loading tasks to/from a file on disk.
@@ -78,41 +78,41 @@ public class Storage {
         String description = parts[2];
         Task task;
         switch (type) {
-        case "T":
-            task = new Todo(description);
-            break;
-        case "D":
-            if (parts.length < 4) {
-                throw new IllegalArgumentException("deadline missing /by field");
-            }
-            try {
-                task = new Deadline(description, LocalDate.parse(parts[3]));
-            } catch (Exception e) {
-                task = new Deadline(description, parts[3]);
-            }
-            break;
-        case "E":
-            if (parts.length < 5) {
-                throw new IllegalArgumentException("event missing /from or /to field");
-            }
-            LocalDate fromDate = null;
-            String fromString = null;
-            LocalDate toDate = null;
-            String toString = null;
-            try {
-                fromDate = LocalDate.parse(parts[3]);
-            } catch (Exception e) {
-                fromString = parts[3];
-            }
-            try {
-                toDate = LocalDate.parse(parts[4]);
-            } catch (Exception e) {
-                toString = parts[4];
-            }
-            task = new Event(description, fromDate, fromString, toDate, toString);
-            break;
-        default:
-            throw new IllegalArgumentException("unknown task type '" + type + "'");
+            case "T":
+                task = new Todo(description);
+                break;
+            case "D":
+                if (parts.length < 4) {
+                    throw new IllegalArgumentException("deadline missing /by field");
+                }
+                try {
+                    task = new Deadline(description, LocalDate.parse(parts[3]));
+                } catch (Exception e) {
+                    task = new Deadline(description, parts[3]);
+                }
+                break;
+            case "E":
+                if (parts.length < 5) {
+                    throw new IllegalArgumentException("event missing /from or /to field");
+                }
+                LocalDate fromDate = null;
+                String fromString = null;
+                LocalDate toDate = null;
+                String toString = null;
+                try {
+                    fromDate = LocalDate.parse(parts[3]);
+                } catch (Exception e) {
+                    fromString = parts[3];
+                }
+                try {
+                    toDate = LocalDate.parse(parts[4]);
+                } catch (Exception e) {
+                    toString = parts[4];
+                }
+                task = new Event(description, fromDate, fromString, toDate, toString);
+                break;
+            default:
+                throw new IllegalArgumentException("unknown task type '" + type + "'");
         }
         if (isDone) {
             task.markAsDone();

@@ -1,10 +1,7 @@
 package amigobot;
 
-import amigobot.task.Deadline;
-import amigobot.task.Event;
-import amigobot.task.Task;
-import amigobot.task.TaskList;
-import amigobot.task.Todo;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,8 +13,11 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import amigobot.task.Deadline;
+import amigobot.task.Event;
+import amigobot.task.Task;
+import amigobot.task.TaskList;
+import amigobot.task.Todo;
 
 /**
  * Tests for Storage's save/load round-trip, which also exercises
