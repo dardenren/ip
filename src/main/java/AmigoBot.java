@@ -1,7 +1,7 @@
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class AmigoBot {
 
@@ -35,47 +35,21 @@ public class AmigoBot {
     }
 
     public static void main(String[] args) {
-        String line = "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*";
-
-        String banner = "    _          _           ____        _   \n"
-                + "   / \\   _ __ (_) __ _  ___| __ )  ___ | |_ \n"
-                + "  / _ \\ | '_ \\| |/ _` |/ _ \\  _ \\ / _ \\| __|\n"
-                + " / ___ \\| | | | | (_| | (_) | |_) | (_) | |_ \n"
-                + "/_/   \\_\\_| |_|_|\\__, |\\___/|____/ \\___/ \\__|\n"
-                + "                 |___/                        \n";
-
-	String capybara = 
-		    "⠀⠀⢀⣀⠤⠿⢤⢖⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n"
-		  + "⡔⢩⠂⠀⠒⠗⠈⠀⠉⠢⠄⣀⠠⠤⠄⠒⢖⡒⢒⠂⠤⢄⠀⠀⠀⠀\n"
-		  + "⠇⠤⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠀⠀⠈⠀⠈⠈⡨⢀⠡⡪⠢⡀⠀\n"
-		  + "⠈⠒⠀⠤⠤⣄⡆⡂⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠢⠀⢕⠱⠀\n"
-		  + "⠀⠀⠀⠀⠀⠈⢳⣐⡐⠐⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠀⠁⠇\n"
-		  + "⠀⠀⠀⠀⠀⠀⠀⠑⢤⢁⠀⠆⠀⠀⠀⠀⠀⢀⢰⠀⠀⠀⡀⢄⡜⠀\n"
-		  + "⠀⠀⠀⠀⠀⠀⠀⠀⠘⡦⠄⡷⠢⠤⠤⠤⠤⢬⢈⡇⢠⣈⣰⠎⠀⠀\n"
-		  + "⠀⠀⠀⠀⠀⠀⠀⠀⠀⣃⢸⡇⠀⠀⠀⠀⠀⠈⢪⢀⣺⡅⢈⠆⠀⠀\n"
-		  + "⠀⠀⠀⠀⠀⠀⠀⠶⡿⠤⠚⠁⠀⠀⠀⢀⣠⡤⢺⣥⠟⢡⠃⠀⠀⠀\n"
-		  + "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀";
-
-        System.out.println(line);
-        System.out.println(banner);
-        System.out.println(capybara);
-        System.out.println("Hola amigo! I'm AmigoBot.");
-        System.out.println("What can I do for you, compadre?");
-        System.out.println(line);
+        Ui ui = new Ui();
+        ui.showWelcome();
 
         Storage storage = new Storage(java.nio.file.Paths.get("data", "amigobot.txt").toString());
         ArrayList<Task> tasks;
         try {
             tasks = storage.load();
         } catch (IOException e) {
-            System.out.println("Ay caramba! Could not load saved tasks: " + e.getMessage());
+            ui.showLoadingError(e.getMessage());
             tasks = new ArrayList<>();
         }
 
-        Scanner scanner = new Scanner(System.in);
         while (true) {
-            String input = scanner.nextLine();
-            System.out.println(line);
+            String input = ui.readCommand();
+            ui.showLine();
             try {
             String[] words = input.split(" ", 2);
             String commandWord = words[0].toUpperCase();
@@ -90,13 +64,10 @@ public class AmigoBot {
 
             switch (command) {
             case BYE:
-                System.out.println("Adios amigo! Hope to see you again soon!");
+                ui.showGoodbye();
                 break;
             case LIST:
-                System.out.println("Here are the tasks in your list:");
-                for (int i = 0; i < tasks.size(); i++) {
-                    System.out.println((i + 1) + "." + tasks.get(i));
-                }
+                ui.showTaskList(tasks);
                 break;
             case DELETE: {
                 if (arguments.isEmpty()) {
@@ -113,9 +84,7 @@ public class AmigoBot {
                 }
                 Task removed = tasks.remove(index);
                 storage.save(tasks);
-                System.out.println("Noted. I've removed this task:");
-                System.out.println("  " + removed);
-                System.out.println("Now you have " + tasks.size() + " tasks in the list.");
+                ui.showTaskDeleted(removed, tasks.size());
                 break;
             }
             case MARK: {
@@ -133,8 +102,7 @@ public class AmigoBot {
                 }
                 tasks.get(index).markAsDone();
                 storage.save(tasks);
-                System.out.println("Nice! I've marked this task as done:");
-                System.out.println("  " + tasks.get(index));
+                ui.showTaskMarked(tasks.get(index));
                 break;
             }
             case UNMARK: {
@@ -152,8 +120,7 @@ public class AmigoBot {
                 }
                 tasks.get(index).markAsNotDone();
                 storage.save(tasks);
-                System.out.println("OK, I've marked this task as not done yet:");
-                System.out.println("  " + tasks.get(index));
+                ui.showTaskUnmarked(tasks.get(index));
                 break;
             }
             case TODO: {
@@ -162,9 +129,7 @@ public class AmigoBot {
                 }
                 tasks.add(new Todo(arguments));
                 storage.save(tasks);
-                System.out.println("Got it. I've added this task:");
-                System.out.println("  " + tasks.get(tasks.size() - 1));
-                System.out.println("Now you have " + tasks.size() + " tasks in the list.");
+                ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
                 break;
             }
             case DEADLINE: {
@@ -187,9 +152,7 @@ public class AmigoBot {
                     tasks.add(new Deadline(desc, byStr));
                 }
                 storage.save(tasks);
-                System.out.println("Got it. I've added this task:");
-                System.out.println("  " + tasks.get(tasks.size() - 1));
-                System.out.println("Now you have " + tasks.size() + " tasks in the list.");
+                ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
                 break;
             }
             case EVENT: {
@@ -218,9 +181,7 @@ public class AmigoBot {
                 tasks.add(new Event(desc, fromDate, fromDate == null ? from : null,
                         toDate, toDate == null ? to : null));
                 storage.save(tasks);
-                System.out.println("Got it. I've added this task:");
-                System.out.println("  " + tasks.get(tasks.size() - 1));
-                System.out.println("Now you have " + tasks.size() + " tasks in the list.");
+                ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
                 break;
             }
             case ON: {
@@ -231,9 +192,7 @@ public class AmigoBot {
                 if (target == null) {
                     throw new AmigoBotException("Ay caramba! Invalid date format. Please use yyyy-MM-dd or dd/mm/yyyy.");
                 }
-                System.out.println("Here are the tasks on " + target.format(
-                        java.time.format.DateTimeFormatter.ofPattern("MMM d yyyy")) + ":");
-                int count = 0;
+                ArrayList<Task> matching = new ArrayList<>();
                 for (int i = 0; i < tasks.size(); i++) {
                     Task task = tasks.get(i);
                     boolean match = false;
@@ -251,13 +210,10 @@ public class AmigoBot {
                         }
                     }
                     if (match) {
-                        count++;
-                        System.out.println(count + "." + task);
+                        matching.add(task);
                     }
                 }
-                if (count == 0) {
-                    System.out.println("No tasks found on that date, compadre!");
-                }
+                ui.showTasksOnDate(target.format(DateTimeFormatter.ofPattern("MMM d yyyy")), matching);
                 break;
             }
             case UNKNOWN:
@@ -265,15 +221,15 @@ public class AmigoBot {
                 throw new AmigoBotException("Ay caramba! I don't know what that means, compadre :-(");
             }
             } catch (AmigoBotException e) {
-                System.out.println(e.getMessage());
+                ui.showError(e.getMessage());
             } catch (IOException e) {
-                System.out.println("Ay caramba! Could not save tasks: " + e.getMessage());
+                ui.showSavingError(e.getMessage());
             }
-            System.out.println(line);
+            ui.showLine();
             if (input.equalsIgnoreCase("bye")) {
                 break;
             }
         }
-        scanner.close();
+        ui.close();
     }
 }
