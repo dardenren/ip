@@ -1,3 +1,11 @@
+package amigobot;
+
+import amigobot.task.Deadline;
+import amigobot.task.Event;
+import amigobot.task.Task;
+import amigobot.task.TaskList;
+import amigobot.task.Todo;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,11 +34,11 @@ public class Storage {
      *   D | 0 | return book | June 6th
      *   E | 0 | project meeting | Mon 2pm | 4pm
      */
-    public void save(ArrayList<Task> tasks) throws IOException {
+    public void save(TaskList tasks) throws IOException {
         Files.createDirectories(filePath.getParent());
         FileWriter writer = new FileWriter(filePath.toFile());
-        for (Task task : tasks) {
-            writer.write(toFileFormat(task) + System.lineSeparator());
+        for (int i = 0; i < tasks.size(); i++) {
+            writer.write(toFileFormat(tasks.getTask(i)) + System.lineSeparator());
         }
         writer.close();
     }
@@ -116,18 +124,18 @@ public class Storage {
      * Converts a Task into its pipe-delimited file format string.
      */
     private String toFileFormat(Task task) {
-        int done = task.isDone ? 1 : 0;
+        int done = task.isDone() ? 1 : 0;
         if (task instanceof Event) {
             Event e = (Event) task;
-            String fromValue = e.fromDate != null ? e.fromDate.toString() : e.fromString;
-            String toValue = e.toDate != null ? e.toDate.toString() : e.toString;
-            return "E | " + done + " | " + e.description + " | " + fromValue + " | " + toValue;
+            String fromValue = e.getFromDate() != null ? e.getFromDate().toString() : e.getFromString();
+            String toValue = e.getToDate() != null ? e.getToDate().toString() : e.getToString();
+            return "E | " + done + " | " + e.getDescription() + " | " + fromValue + " | " + toValue;
         } else if (task instanceof Deadline) {
             Deadline d = (Deadline) task;
-            String byValue = d.byDate != null ? d.byDate.toString() : d.byString;
-            return "D | " + done + " | " + d.description + " | " + byValue;
+            String byValue = d.getByDate() != null ? d.getByDate().toString() : d.getByString();
+            return "D | " + done + " | " + d.getDescription() + " | " + byValue;
         } else {
-            return "T | " + done + " | " + task.description;
+            return "T | " + done + " | " + task.getDescription();
         }
     }
 }

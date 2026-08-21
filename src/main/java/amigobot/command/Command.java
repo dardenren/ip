@@ -1,3 +1,5 @@
+package amigobot.command;
+
 /**
  * Represents the types of commands that AmigoBot can handle.
  */

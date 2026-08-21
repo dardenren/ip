@@ -1,3 +1,5 @@
+package amigobot.task;
+
 /**
  * Represents a task with a description and a done status.
  * Subclasses (Todo, Deadline, Event) add type-specific behavior.
@@ -9,6 +11,14 @@ public class Task {
     public Task(String description) {
         this.description = description;
         this.isDone = false;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public boolean isDone() {
+        return isDone;
     }
 
     public String getStatusIcon() {

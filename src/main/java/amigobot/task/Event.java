@@ -1,3 +1,5 @@
+package amigobot.task;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -46,6 +48,22 @@ public class Event extends Task {
         this.fromString = fromString;
         this.toDate = toDate;
         this.toString = toString;
+    }
+
+    public LocalDate getFromDate() {
+        return fromDate;
+    }
+
+    public String getFromString() {
+        return fromString;
+    }
+
+    public LocalDate getToDate() {
+        return toDate;
+    }
+
+    public String getToString() {
+        return this.toString;
     }
 
     @Override

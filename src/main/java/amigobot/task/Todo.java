@@ -1,3 +1,5 @@
+package amigobot.task;
+
 /**
  * Represents a task without any date/time attached.
  */

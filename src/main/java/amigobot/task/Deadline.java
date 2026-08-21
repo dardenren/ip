@@ -1,3 +1,5 @@
+package amigobot.task;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -28,6 +30,14 @@ public class Deadline extends Task {
         super(description);
         this.byDate = null;
         this.byString = by;
+    }
+
+    public LocalDate getByDate() {
+        return byDate;
+    }
+
+    public String getByString() {
+        return byString;
     }
 
     @Override

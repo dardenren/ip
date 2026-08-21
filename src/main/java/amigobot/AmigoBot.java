@@ -1,3 +1,12 @@
+package amigobot;
+
+import amigobot.command.Command;
+import amigobot.task.Deadline;
+import amigobot.task.Event;
+import amigobot.task.Task;
+import amigobot.task.TaskList;
+import amigobot.task.Todo;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -39,12 +48,12 @@ public class AmigoBot {
         ui.showWelcome();
 
         Storage storage = new Storage(java.nio.file.Paths.get("data", "amigobot.txt").toString());
-        ArrayList<Task> tasks;
+        TaskList tasks;
         try {
-            tasks = storage.load();
+            tasks = new TaskList(storage.load());
         } catch (IOException e) {
             ui.showLoadingError(e.getMessage());
-            tasks = new ArrayList<>();
+            tasks = new TaskList();
         }
 
         while (true) {
@@ -82,7 +91,7 @@ public class AmigoBot {
                 if (index < 0 || index >= tasks.size()) {
                     throw new AmigoBotException("Ay caramba! Task number " + (index + 1) + " does not exist. You have " + tasks.size() + " tasks.");
                 }
-                Task removed = tasks.remove(index);
+                Task removed = tasks.deleteTask(index);
                 storage.save(tasks);
                 ui.showTaskDeleted(removed, tasks.size());
                 break;
@@ -100,9 +109,9 @@ public class AmigoBot {
                 if (index < 0 || index >= tasks.size()) {
                     throw new AmigoBotException("Ay caramba! Task number " + (index + 1) + " does not exist. You have " + tasks.size() + " tasks.");
                 }
-                tasks.get(index).markAsDone();
+                tasks.getTask(index).markAsDone();
                 storage.save(tasks);
-                ui.showTaskMarked(tasks.get(index));
+                ui.showTaskMarked(tasks.getTask(index));
                 break;
             }
             case UNMARK: {
@@ -118,18 +127,19 @@ public class AmigoBot {
                 if (index < 0 || index >= tasks.size()) {
                     throw new AmigoBotException("Ay caramba! Task number " + (index + 1) + " does not exist. You have " + tasks.size() + " tasks.");
                 }
-                tasks.get(index).markAsNotDone();
+                tasks.getTask(index).markAsNotDone();
                 storage.save(tasks);
-                ui.showTaskUnmarked(tasks.get(index));
+                ui.showTaskUnmarked(tasks.getTask(index));
                 break;
             }
             case TODO: {
                 if (arguments.isEmpty()) {
                     throw new AmigoBotException("Ay caramba! The description of a todo cannot be empty.");
                 }
-                tasks.add(new Todo(arguments));
+                Task task = new Todo(arguments);
+                tasks.addTask(task);
                 storage.save(tasks);
-                ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
+                ui.showTaskAdded(task, tasks.size());
                 break;
             }
             case DEADLINE: {
@@ -146,13 +156,15 @@ public class AmigoBot {
                     throw new AmigoBotException("Ay caramba! The /by date of a deadline cannot be empty.");
                 }
                 LocalDate byDate = tryParseDate(byStr);
+                Task task;
                 if (byDate != null) {
-                    tasks.add(new Deadline(desc, byDate));
+                    task = new Deadline(desc, byDate);
                 } else {
-                    tasks.add(new Deadline(desc, byStr));
+                    task = new Deadline(desc, byStr);
                 }
+                tasks.addTask(task);
                 storage.save(tasks);
-                ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
+                ui.showTaskAdded(task, tasks.size());
                 break;
             }
             case EVENT: {
@@ -178,10 +190,11 @@ public class AmigoBot {
                 }
                 LocalDate fromDate = tryParseDate(from);
                 LocalDate toDate = tryParseDate(to);
-                tasks.add(new Event(desc, fromDate, fromDate == null ? from : null,
-                        toDate, toDate == null ? to : null));
+                Task task = new Event(desc, fromDate, fromDate == null ? from : null,
+                        toDate, toDate == null ? to : null);
+                tasks.addTask(task);
                 storage.save(tasks);
-                ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
+                ui.showTaskAdded(task, tasks.size());
                 break;
             }
             case ON: {
@@ -194,19 +207,19 @@ public class AmigoBot {
                 }
                 ArrayList<Task> matching = new ArrayList<>();
                 for (int i = 0; i < tasks.size(); i++) {
-                    Task task = tasks.get(i);
+                    Task task = tasks.getTask(i);
                     boolean match = false;
                     if (task instanceof Deadline) {
                         Deadline d = (Deadline) task;
-                        match = d.byDate != null && d.byDate.equals(target);
+                        match = d.getByDate() != null && d.getByDate().equals(target);
                     } else if (task instanceof Event) {
                         Event e = (Event) task;
-                        if (e.fromDate != null && e.toDate != null) {
-                            match = !target.isBefore(e.fromDate) && !target.isAfter(e.toDate);
-                        } else if (e.fromDate != null) {
-                            match = e.fromDate.equals(target);
-                        } else if (e.toDate != null) {
-                            match = e.toDate.equals(target);
+                        if (e.getFromDate() != null && e.getToDate() != null) {
+                            match = !target.isBefore(e.getFromDate()) && !target.isAfter(e.getToDate());
+                        } else if (e.getFromDate() != null) {
+                            match = e.getFromDate().equals(target);
+                        } else if (e.getToDate() != null) {
+                            match = e.getToDate().equals(target);
                         }
                     }
                     if (match) {
