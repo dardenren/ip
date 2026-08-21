@@ -36,6 +36,7 @@ public class Storage {
 
     /**
      * Loads tasks from the file. Returns an empty list if the file does not exist.
+     * Skips corrupted or malformed lines with a warning instead of crashing.
      */
     public ArrayList<Task> load() throws IOException {
         ArrayList<Task> tasks = new ArrayList<>();
@@ -43,31 +44,53 @@ public class Storage {
             return tasks;
         }
         List<String> lines = Files.readAllLines(filePath);
-        for (String line : lines) {
-            String[] parts = line.split(" \\| ");
-            String type = parts[0];
-            boolean isDone = parts[1].equals("1");
-            String description = parts[2];
-            Task task;
-            switch (type) {
-            case "T":
-                task = new Todo(description);
-                break;
-            case "D":
-                task = new Deadline(description, parts[3]);
-                break;
-            case "E":
-                task = new Event(description, parts[3], parts[4]);
-                break;
-            default:
-                continue;
+        for (int i = 0; i < lines.size(); i++) {
+            String line = lines.get(i);
+            try {
+                tasks.add(parseLine(line));
+            } catch (IllegalArgumentException e) {
+                System.out.println("Warning: skipped corrupted line " + (i + 1) + ": " + e.getMessage());
             }
-            if (isDone) {
-                task.markAsDone();
-            }
-            tasks.add(task);
         }
         return tasks;
+    }
+
+    /**
+     * Parses a single pipe-delimited line into a Task.
+     * Throws IllegalArgumentException if the line is malformed.
+     */
+    private Task parseLine(String line) {
+        String[] parts = line.split(" \\| ");
+        if (parts.length < 3) {
+            throw new IllegalArgumentException("too few fields");
+        }
+        String type = parts[0];
+        boolean isDone = parts[1].equals("1");
+        String description = parts[2];
+        Task task;
+        switch (type) {
+        case "T":
+            task = new Todo(description);
+            break;
+        case "D":
+            if (parts.length < 4) {
+                throw new IllegalArgumentException("deadline missing /by field");
+            }
+            task = new Deadline(description, parts[3]);
+            break;
+        case "E":
+            if (parts.length < 5) {
+                throw new IllegalArgumentException("event missing /from or /to field");
+            }
+            task = new Event(description, parts[3], parts[4]);
+            break;
+        default:
+            throw new IllegalArgumentException("unknown task type '" + type + "'");
+        }
+        if (isDone) {
+            task.markAsDone();
+        }
+        return task;
     }
 
     /**
