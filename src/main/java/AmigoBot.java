@@ -213,7 +213,10 @@ public class AmigoBot {
                 if (to.isEmpty()) {
                     throw new AmigoBotException("Ay caramba! The /to time of an event cannot be empty.");
                 }
-                tasks.add(new Event(desc, from, to));
+                LocalDate fromDate = tryParseDate(from);
+                LocalDate toDate = tryParseDate(to);
+                tasks.add(new Event(desc, fromDate, fromDate == null ? from : null,
+                        toDate, toDate == null ? to : null));
                 storage.save(tasks);
                 System.out.println("Got it. I've added this task:");
                 System.out.println("  " + tasks.get(tasks.size() - 1));
