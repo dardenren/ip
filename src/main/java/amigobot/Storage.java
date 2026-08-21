@@ -23,6 +23,11 @@ public class Storage {
 
     private final Path filePath;
 
+    /**
+     * Constructs a Storage that reads from and writes to the given file path.
+     *
+     * @param filePath the path to the task data file.
+     */
     public Storage(String filePath) {
         this.filePath = Paths.get(filePath);
     }
@@ -66,7 +71,13 @@ public class Storage {
 
     /**
      * Parses a single pipe-delimited line into a Task.
-     * Throws IllegalArgumentException if the line is malformed.
+     * Handles T (Todo), D (Deadline), and E (Event) types, and restores
+     * the done status. Dates stored as ISO format are parsed back into
+     * LocalDate; other strings are kept as plain text.
+     *
+     * @param line the pipe-delimited line to parse.
+     * @return the reconstructed Task.
+     * @throws IllegalArgumentException if the line is malformed or has an unknown type.
      */
     private Task parseLine(String line) {
         String[] parts = line.split(" \\| ");
@@ -122,6 +133,11 @@ public class Storage {
 
     /**
      * Converts a Task into its pipe-delimited file format string.
+     * Uses instanceof checks to determine the task type and serialize
+     * the appropriate fields (dates as ISO format, strings as-is).
+     *
+     * @param task the task to convert.
+     * @return the pipe-delimited string representation.
      */
     private String toFileFormat(Task task) {
         int done = task.isDone() ? 1 : 0;

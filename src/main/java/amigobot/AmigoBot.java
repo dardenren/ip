@@ -12,12 +12,20 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
+/**
+ * Main class for the AmigoBot chatbot application.
+ * Handles the command loop that reads user input, parses commands,
+ * and delegates to the appropriate task operations.
+ */
 public class AmigoBot {
 
     /**
      * Tries to parse a date string into a LocalDate.
-     * Accepts formats like yyyy-mm-dd, dd/mm/yyyy, dd-mm-yyyy, yyyy/mm/dd, etc.
-     * Returns null if the string is not a recognizable date (e.g. "tomorrow").
+     * Normalizes separators (/, ., -) and detects whether the format is
+     * year-first (yyyy-mm-dd) or day-first (dd-mm-yyyy).
+     *
+     * @param input the date string to parse.
+     * @return the parsed LocalDate, or null if the string is not a recognizable date.
      */
     private static LocalDate tryParseDate(String input) {
         String normalized = input.replace("/", "-").replace(".", "-");
@@ -43,6 +51,12 @@ public class AmigoBot {
         return null;
     }
 
+    /**
+     * Entry point for the AmigoBot application.
+     * Initializes the UI, storage, and task list, then runs the command loop.
+     *
+     * @param args command-line arguments (not used).
+     */
     public static void main(String[] args) {
         Ui ui = new Ui();
         ui.showWelcome();

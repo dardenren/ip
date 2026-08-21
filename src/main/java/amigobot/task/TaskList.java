@@ -9,14 +9,25 @@ public class TaskList {
 
     private final ArrayList<Task> tasks;
 
+    /** Constructs an empty TaskList. */
     public TaskList() {
         this.tasks = new ArrayList<>();
     }
 
+    /**
+     * Constructs a TaskList with the given pre-existing tasks.
+     *
+     * @param tasks the list of tasks to wrap.
+     */
     public TaskList(ArrayList<Task> tasks) {
         this.tasks = tasks;
     }
 
+    /**
+     * Adds a task to the list.
+     *
+     * @param task the task to add.
+     */
     public void addTask(Task task) {
         tasks.add(task);
     }
@@ -28,10 +39,21 @@ public class TaskList {
         return tasks.remove(index);
     }
 
+    /**
+     * Returns the task at the given index.
+     *
+     * @param index the 0-based index.
+     * @return the task at the index.
+     */
     public Task getTask(int index) {
         return tasks.get(index);
     }
 
+    /**
+     * Returns the number of tasks in the list.
+     *
+     * @return the task count.
+     */
     public int size() {
         return tasks.size();
     }

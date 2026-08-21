@@ -32,14 +32,30 @@ public class Deadline extends Task {
         this.byString = by;
     }
 
+    /**
+     * Returns the deadline date as a LocalDate, or null if stored as a string.
+     *
+     * @return the deadline date, or null.
+     */
     public LocalDate getByDate() {
         return byDate;
     }
 
+    /**
+     * Returns the deadline date as a plain string, or null if stored as a LocalDate.
+     *
+     * @return the deadline string, or null.
+     */
     public String getByString() {
         return byString;
     }
 
+    /**
+     * Returns a string representation prefixed with [D] and the deadline,
+     * e.g. "[D][ ] return book (by: Dec 2 2025)".
+     *
+     * @return the formatted deadline string.
+     */
     @Override
     public String toString() {
         String display = byDate != null ? byDate.format(DISPLAY_FORMAT) : byString;
