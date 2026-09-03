@@ -24,12 +24,14 @@ public class TaskList {
     }
 
     /**
-     * Adds a task to the list.
+     * Adds one or more tasks to the list.
      *
-     * @param task the task to add.
+     * @param newTasks the tasks to add.
      */
-    public void addTask(Task task) {
-        tasks.add(task);
+    public void addTask(Task... newTasks) {
+        for (Task task : newTasks) {
+            tasks.add(task);
+        }
     }
 
     /**
