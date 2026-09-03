@@ -142,6 +142,11 @@ public class Ui {
         }
     }
 
+    /**
+     * Prints tasks whose descriptions match the search keyword.
+     *
+     * @param matchingTasks the list of tasks that matched the keyword.
+     */
     public void showFoundTasks(ArrayList<Task> matchingTasks) {
         System.out.println("Here are the matching tasks in your list:");
         if (matchingTasks.isEmpty()) {
