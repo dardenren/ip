@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import amigobot.command.Command;
 import amigobot.task.Deadline;
@@ -93,11 +95,10 @@ public class AmigoBot {
     }
 
     private String formatTaskList() {
-        StringBuilder sb = new StringBuilder("Here are the tasks in your list:");
-        for (int i = 0; i < tasks.size(); i++) {
-            appendNumberedItem(sb, i + 1, tasks.getTask(i).toString());
-        }
-        return sb.toString();
+        String items = IntStream.range(0, tasks.size())
+                .mapToObj(i -> (i + 1) + "." + tasks.getTask(i))
+                .collect(Collectors.joining("\n"));
+        return "Here are the tasks in your list:" + (items.isEmpty() ? "" : "\n" + items);
     }
 
     private String handleDelete(String arguments) throws AmigoBotException, IOException {
@@ -194,13 +195,10 @@ public class AmigoBot {
             throw new AmigoBotException(
                     "Ay caramba! Invalid date format. Please use yyyy-MM-dd or dd/mm/yyyy.");
         }
-        ArrayList<Task> matching = new ArrayList<>();
-        for (int i = 0; i < tasks.size(); i++) {
-            Task task = tasks.getTask(i);
-            if (isOnDate(task, target)) {
-                matching.add(task);
-            }
-        }
+        ArrayList<Task> matching = IntStream.range(0, tasks.size())
+                .mapToObj(tasks::getTask)
+                .filter(task -> isOnDate(task, target))
+                .collect(Collectors.toCollection(ArrayList::new));
         String dateDisplay = target.format(DateTimeFormatter.ofPattern("MMM d yyyy"));
         StringBuilder sb = new StringBuilder("Here are the tasks on " + dateDisplay + ":");
         if (matching.isEmpty()) {
