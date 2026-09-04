@@ -148,12 +148,7 @@ public class AmigoBot {
             throw new AmigoBotException("Ay caramba! The /by date of a deadline cannot be empty.");
         }
         LocalDate byDate = tryParseDate(byStr);
-        Task task;
-        if (byDate != null) {
-            task = new Deadline(desc, byDate);
-        } else {
-            task = new Deadline(desc, byStr);
-        }
+        Task task = byDate != null ? new Deadline(desc, byDate) : new Deadline(desc, byStr);
         tasks.addTask(task);
         storage.save(tasks);
         return formatTaskAdded(task);
@@ -210,7 +205,7 @@ public class AmigoBot {
             sb.append("\nNo tasks found on that date, compadre!");
         } else {
             for (int i = 0; i < matching.size(); i++) {
-                sb.append("\n").append(i + 1).append(".").append(matching.get(i));
+                appendNumberedItem(sb, i + 1, matching.get(i).toString());
             }
         }
         return sb.toString();
@@ -227,7 +222,7 @@ public class AmigoBot {
             sb.append("\nNo matching tasks found, compadre!");
         } else {
             for (int i = 0; i < found.size(); i++) {
-                sb.append("\n").append(i + 1).append(".").append(found.get(i));
+                appendNumberedItem(sb, i + 1, found.get(i).toString());
             }
         }
         return sb.toString();
@@ -252,6 +247,10 @@ public class AmigoBot {
                     + " does not exist. You have " + tasks.size() + " tasks.");
         }
         return index;
+    }
+
+    private void appendNumberedItem(StringBuilder sb, int number, String item) {
+        sb.append("\n").append(number).append(".").append(item);
     }
 
     private String formatTaskAdded(Task task) {
