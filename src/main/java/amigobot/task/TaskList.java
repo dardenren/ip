@@ -1,6 +1,7 @@
 package amigobot.task;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 /**
  * Wraps an ArrayList of tasks and provides operations to add, delete, and access tasks.
@@ -64,14 +65,10 @@ public class TaskList {
      * Returns tasks whose description contains the given keyword (case-insensitive).
      */
     public ArrayList<Task> findTasks(String keyword) {
-        ArrayList<Task> matches = new ArrayList<>();
         String lowerKeyword = keyword.toLowerCase();
-        for (Task task : tasks) {
-            if (task.getDescription().toLowerCase().contains(lowerKeyword)) {
-                matches.add(task);
-            }
-        }
-        return matches;
+        return tasks.stream()
+                .filter(task -> task.getDescription().toLowerCase().contains(lowerKeyword))
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     /**
