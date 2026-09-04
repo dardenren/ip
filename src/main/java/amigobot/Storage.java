@@ -41,11 +41,11 @@ public class Storage {
      */
     public void save(TaskList tasks) throws IOException {
         Files.createDirectories(filePath.getParent());
-        FileWriter writer = new FileWriter(filePath.toFile());
-        for (int i = 0; i < tasks.size(); i++) {
-            writer.write(toFileFormat(tasks.getTask(i)) + System.lineSeparator());
+        try (FileWriter writer = new FileWriter(filePath.toFile())) {
+            for (int i = 0; i < tasks.size(); i++) {
+                writer.write(toFileFormat(tasks.getTask(i)) + System.lineSeparator());
+            }
         }
-        writer.close();
     }
 
     /**
