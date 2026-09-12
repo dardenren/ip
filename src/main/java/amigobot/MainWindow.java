@@ -45,8 +45,9 @@ public class MainWindow extends AnchorPane {
         bgOverlay.heightProperty().bind(this.heightProperty());
 
         dialogContainer.getChildren().add(
-                DialogBox.getBotDialog("Hola amigo! I'm AmigoBot.\nWhat can I do for you, compadre?",
-                        botImage));
+                DialogBox.getBotDialog("Hola amigo! I'm AmigoBot, your friendly capybara assistant!\n"
+                        + "Did you know capybaras are the world's largest rodents?\n"
+                        + "Anyway, what can I do for you, compadre?", botImage));
     }
 
     /** Injects the AmigoBot instance. */
