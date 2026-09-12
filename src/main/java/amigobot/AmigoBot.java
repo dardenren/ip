@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -102,25 +104,47 @@ public class AmigoBot {
     }
 
     private String handleDelete(String arguments) throws AmigoBotException, IOException {
-        int index = parseTaskIndex(arguments, "delete 1");
-        Task removed = tasks.deleteTask(index);
+        List<Integer> indices = parseTaskIndices(arguments, "delete 1 2 3 or delete 1-3");
+        // Delete in descending order so earlier indices remain valid
+        indices.sort(Collections.reverseOrder());
+        List<Task> removed = new ArrayList<>();
+        for (int index : indices) {
+            removed.add(tasks.deleteTask(index));
+        }
         storage.save(tasks);
-        return "Noted. I've removed this task:\n  " + removed
-                + "\nNow you have " + tasks.size() + " tasks in the list.";
+        Collections.reverse(removed);
+        StringBuilder sb = new StringBuilder("Noted. I've removed these tasks:");
+        for (Task task : removed) {
+            sb.append("\n  ").append(task);
+        }
+        sb.append("\nNow you have ").append(tasks.size()).append(" tasks in the list.");
+        return sb.toString();
     }
 
     private String handleMark(String arguments) throws AmigoBotException, IOException {
-        int index = parseTaskIndex(arguments, "mark 1");
-        tasks.getTask(index).markAsDone();
+        List<Integer> indices = parseTaskIndices(arguments, "mark 1 2 3 or mark 1-3");
+        for (int index : indices) {
+            tasks.getTask(index).markAsDone();
+        }
         storage.save(tasks);
-        return "Nice! I've marked this task as done:\n  " + tasks.getTask(index);
+        StringBuilder sb = new StringBuilder("Nice! I've marked these tasks as done:");
+        for (int index : indices) {
+            sb.append("\n  ").append(tasks.getTask(index));
+        }
+        return sb.toString();
     }
 
     private String handleUnmark(String arguments) throws AmigoBotException, IOException {
-        int index = parseTaskIndex(arguments, "unmark 1");
-        tasks.getTask(index).markAsNotDone();
+        List<Integer> indices = parseTaskIndices(arguments, "unmark 1 2 3 or unmark 1-3");
+        for (int index : indices) {
+            tasks.getTask(index).markAsNotDone();
+        }
         storage.save(tasks);
-        return "OK, I've marked this task as not done yet:\n  " + tasks.getTask(index);
+        StringBuilder sb = new StringBuilder("OK, I've marked these tasks as not done yet:");
+        for (int index : indices) {
+            sb.append("\n  ").append(tasks.getTask(index));
+        }
+        return sb.toString();
     }
 
     private String handleTodo(String arguments) throws AmigoBotException, IOException {
@@ -229,24 +253,55 @@ public class AmigoBot {
     }
 
     /**
-     * Parses and validates a 1-based task index from the arguments string.
+     * Parses one or more 1-based task indices from the arguments string.
+     * Accepts individual numbers separated by spaces (e.g. "1 3 5"),
+     * ranges with a dash (e.g. "1-5"), or a mix of both (e.g. "1-3 5 7").
+     * Returns a sorted list of unique 0-based indices.
      */
-    private int parseTaskIndex(String arguments, String example) throws AmigoBotException {
+    private List<Integer> parseTaskIndices(String arguments, String example) throws AmigoBotException {
         if (arguments.isEmpty()) {
             throw new AmigoBotException(
-                    "Ay caramba! Please provide a task number. Example: " + example);
+                    "Ay caramba! Please provide task number(s). Example: " + example);
         }
-        int index;
-        try {
-            index = Integer.parseInt(arguments) - 1;
-        } catch (NumberFormatException e) {
-            throw new AmigoBotException("Ay caramba! That's not a valid number, compadre.");
+        List<Integer> indices = new ArrayList<>();
+        String[] tokens = arguments.split("\\s+");
+        for (String token : tokens) {
+            if (token.contains("-")) {
+                String[] rangeParts = token.split("-", 2);
+                int start;
+                int end;
+                try {
+                    start = Integer.parseInt(rangeParts[0]);
+                    end = Integer.parseInt(rangeParts[1]);
+                } catch (NumberFormatException e) {
+                    throw new AmigoBotException(
+                            "Ay caramba! '" + token + "' is not a valid range, compadre.");
+                }
+                if (start > end) {
+                    throw new AmigoBotException(
+                            "Ay caramba! Invalid range " + token + ". Start must not be greater than end.");
+                }
+                for (int i = start; i <= end; i++) {
+                    indices.add(i - 1);
+                }
+            } else {
+                try {
+                    indices.add(Integer.parseInt(token) - 1);
+                } catch (NumberFormatException e) {
+                    throw new AmigoBotException(
+                            "Ay caramba! '" + token + "' is not a valid number, compadre.");
+                }
+            }
         }
-        if (index < 0 || index >= tasks.size()) {
-            throw new AmigoBotException("Ay caramba! Task number " + (index + 1)
-                    + " does not exist. You have " + tasks.size() + " tasks.");
+        // Remove duplicates and sort
+        indices = indices.stream().distinct().sorted().collect(Collectors.toList());
+        for (int index : indices) {
+            if (index < 0 || index >= tasks.size()) {
+                throw new AmigoBotException("Ay caramba! Task number " + (index + 1)
+                        + " does not exist. You have " + tasks.size() + " tasks.");
+            }
         }
-        return index;
+        return indices;
     }
 
     private void appendNumberedItem(StringBuilder sb, int number, String item) {
