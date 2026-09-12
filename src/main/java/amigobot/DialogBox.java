@@ -13,10 +13,12 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.shape.Circle;
 
 /**
- * Represents a dialog box consisting of an ImageView to represent the speaker's face
- * and a label containing text from the speaker.
+ * Represents a dialog box consisting of a small circular avatar
+ * and a styled message bubble. User and bot dialogs have distinct
+ * visual styles to reflect the asymmetric nature of the conversation.
  */
 public class DialogBox extends HBox {
     @FXML
@@ -36,6 +38,10 @@ public class DialogBox extends HBox {
 
         dialog.setText(text);
         displayPicture.setImage(img);
+
+        // Clip the profile picture to a circle
+        Circle clip = new Circle(20, 20, 20);
+        displayPicture.setClip(clip);
     }
 
     /**
@@ -48,15 +54,26 @@ public class DialogBox extends HBox {
         setAlignment(Pos.TOP_LEFT);
     }
 
-    /** Creates a dialog box for the user (image on the right). */
+    /** Creates a dialog box for the user (image on the right, blue bubble). */
     public static DialogBox getUserDialog(String text, Image img) {
-        return new DialogBox(text, img);
+        DialogBox db = new DialogBox(text, img);
+        db.getStyleClass().add("user-dialog");
+        return db;
     }
 
-    /** Creates a dialog box for the bot (image on the left). */
+    /** Creates a dialog box for the bot (image on the left, white bubble). */
     public static DialogBox getBotDialog(String text, Image img) {
-        var db = new DialogBox(text, img);
+        DialogBox db = new DialogBox(text, img);
         db.flip();
+        db.getStyleClass().add("bot-dialog");
+        return db;
+    }
+
+    /** Creates an error dialog box for the bot (image on the left, red bubble). */
+    public static DialogBox getErrorDialog(String text, Image img) {
+        DialogBox db = new DialogBox(text, img);
+        db.flip();
+        db.getStyleClass().add("error-dialog");
         return db;
     }
 }
