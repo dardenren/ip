@@ -58,7 +58,16 @@ public class AmigoBot {
      * Constructs an AmigoBot that loads tasks from the default data file.
      */
     public AmigoBot() {
-        this.storage = new Storage(java.nio.file.Paths.get("data", "amigobot.txt").toString());
+        this(java.nio.file.Paths.get("data", "amigobot.txt").toString());
+    }
+
+    /**
+     * Constructs an AmigoBot that loads tasks from the given file path.
+     *
+     * @param filePath the path to the task data file.
+     */
+    AmigoBot(String filePath) {
+        this.storage = new Storage(filePath);
         try {
             this.tasks = new TaskList(storage.load());
         } catch (IOException e) {
