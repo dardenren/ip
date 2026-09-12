@@ -6,8 +6,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Rectangle;
 
 /**
  * Controller for the main GUI window.
@@ -21,18 +23,30 @@ public class MainWindow extends AnchorPane {
     private TextField userInput;
     @FXML
     private Button sendButton;
+    @FXML
+    private ImageView backgroundImage;
+    @FXML
+    private Rectangle bgOverlay;
 
     private AmigoBot amigoBot;
 
     private Image userImage = new Image(this.getClass().getResourceAsStream("/images/DaUser.png"));
     private Image botImage = new Image(this.getClass().getResourceAsStream("/images/DaBot.png"));
 
-    /** Binds the scroll pane to auto-scroll to the bottom. */
+    /** Binds the scroll pane to auto-scroll and the background to resize with the window. */
     @FXML
     public void initialize() {
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
+
+        // Bind background image and overlay to window size
+        backgroundImage.fitWidthProperty().bind(this.widthProperty());
+        backgroundImage.fitHeightProperty().bind(this.heightProperty());
+        bgOverlay.widthProperty().bind(this.widthProperty());
+        bgOverlay.heightProperty().bind(this.heightProperty());
+
         dialogContainer.getChildren().add(
-                DialogBox.getBotDialog("Hola amigo! I'm AmigoBot.\nWhat can I do for you, compadre?", botImage));
+                DialogBox.getBotDialog("Hola amigo! I'm AmigoBot.\nWhat can I do for you, compadre?",
+                        botImage));
     }
 
     /** Injects the AmigoBot instance. */
@@ -43,6 +57,7 @@ public class MainWindow extends AnchorPane {
     /**
      * Creates two dialog boxes — one for the user input and one for AmigoBot's reply —
      * then appends them to the dialog container and clears the input field.
+     * Error responses are displayed with a distinct red style.
      */
     @FXML
     private void handleUserInput() {
@@ -51,9 +66,14 @@ public class MainWindow extends AnchorPane {
             return;
         }
         String response = amigoBot.getResponse(input);
+
+        DialogBox botDialog = response.startsWith("Ay caramba!")
+                ? DialogBox.getErrorDialog(response, botImage)
+                : DialogBox.getBotDialog(response, botImage);
+
         dialogContainer.getChildren().addAll(
                 DialogBox.getUserDialog(input, userImage),
-                DialogBox.getBotDialog(response, botImage)
+                botDialog
         );
         userInput.clear();
 
