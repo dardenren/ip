@@ -44,8 +44,9 @@ public class Ui {
         showLine();
         System.out.println(BANNER);
         System.out.println(CAPYBARA);
-        System.out.println("Hola amigo! I'm AmigoBot.");
-        System.out.println("What can I do for you, compadre?");
+        System.out.println("Hola amigo! I'm AmigoBot, your friendly capybara assistant!");
+        System.out.println("Did you know capybaras are the world's largest rodents?");
+        System.out.println("Anyway, what can I do for you, compadre?");
         showLine();
     }
 

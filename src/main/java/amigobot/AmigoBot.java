@@ -6,6 +6,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -22,6 +23,34 @@ import amigobot.task.Todo;
  */
 public class AmigoBot {
 
+    private static final String[] ADDED_PHRASES = {
+        "Got it, compadre! I've added this task:",
+        "Consider it noted, amigo! I've added this task:",
+        "No problemo! I've added this task:",
+        "Anotado! I've added this task:"
+    };
+    private static final String[] MARKED_PHRASES = {
+        "Muy bien! I've marked this task as done:",
+        "Excelente, amigo! I've marked this task as done:",
+        "Fantastico! I've marked this task as done:"
+    };
+    private static final String[] UNMARKED_PHRASES = {
+        "No worries, compadre! I've marked this task as not done yet:",
+        "OK amigo, I've marked this task as not done yet:",
+        "Entendido! I've marked this task as not done yet:"
+    };
+    private static final String[] DELETED_PHRASES = {
+        "Noted, compadre! I've removed this task:",
+        "Gone like the wind, amigo! I've removed this task:",
+        "Hasta la vista! I've removed this task:"
+    };
+    private static final String[] BYE_PHRASES = {
+        "Adios amigo! Hope to see you again soon!",
+        "Hasta la vista, compadre! Come back anytime!",
+        "Chao amigo! It was nice chatting with you!"
+    };
+
+    private final Random random = new Random();
     private final Storage storage;
     private TaskList tasks;
 
@@ -71,7 +100,7 @@ public class AmigoBot {
             throws AmigoBotException, IOException {
         switch (command) {
             case BYE:
-                return "Adios amigo! Hope to see you again soon!";
+                return randomPhrase(BYE_PHRASES);
             case LIST:
                 return formatTaskList();
             case DELETE:
@@ -113,7 +142,7 @@ public class AmigoBot {
         }
         storage.save(tasks);
         Collections.reverse(removed);
-        StringBuilder sb = new StringBuilder("Noted. I've removed these tasks:");
+        StringBuilder sb = new StringBuilder(randomPhrase(DELETED_PHRASES));
         for (Task task : removed) {
             sb.append("\n  ").append(task);
         }
@@ -127,7 +156,7 @@ public class AmigoBot {
             tasks.getTask(index).markAsDone();
         }
         storage.save(tasks);
-        StringBuilder sb = new StringBuilder("Nice! I've marked these tasks as done:");
+        StringBuilder sb = new StringBuilder(randomPhrase(MARKED_PHRASES));
         for (int index : indices) {
             sb.append("\n  ").append(tasks.getTask(index));
         }
@@ -140,7 +169,7 @@ public class AmigoBot {
             tasks.getTask(index).markAsNotDone();
         }
         storage.save(tasks);
-        StringBuilder sb = new StringBuilder("OK, I've marked these tasks as not done yet:");
+        StringBuilder sb = new StringBuilder(randomPhrase(UNMARKED_PHRASES));
         for (int index : indices) {
             sb.append("\n  ").append(tasks.getTask(index));
         }
@@ -308,8 +337,12 @@ public class AmigoBot {
         sb.append("\n").append(number).append(".").append(item);
     }
 
+    private String randomPhrase(String[] phrases) {
+        return phrases[random.nextInt(phrases.length)];
+    }
+
     private String formatTaskAdded(Task task) {
-        return "Got it. I've added this task:\n  " + task
+        return randomPhrase(ADDED_PHRASES) + "\n  " + task
                 + "\nNow you have " + tasks.size() + " tasks in the list.";
     }
 
