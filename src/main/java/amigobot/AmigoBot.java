@@ -74,7 +74,11 @@ public class AmigoBot {
      */
     public String getResponse(String input) {
         try {
-            String[] words = input.split(" ", 2);
+            String trimmed = input.trim();
+            if (trimmed.isEmpty()) {
+                throw new AmigoBotException("Ay caramba! Please enter a command, compadre.");
+            }
+            String[] words = trimmed.split("\\s+", 2);
             String commandWord = words[0].toUpperCase();
             String arguments = words.length > 1 ? words[1].trim() : "";
 
@@ -190,13 +194,16 @@ public class AmigoBot {
         if (arguments.isEmpty()) {
             throw new AmigoBotException("Ay caramba! The description of a deadline cannot be empty.");
         }
-        if (!arguments.contains(" /by ")) {
+        if (!arguments.matches("(?i).*\\s*/by\\s+.*")) {
             throw new AmigoBotException(
                     "Ay caramba! A deadline needs a /by date. Example: deadline return book /by Sunday");
         }
-        String[] parts = arguments.split(" /by ", 2);
+        String[] parts = arguments.split("\\s*/by\\s+", 2);
         String desc = parts[0].trim();
         String byStr = parts[1].trim();
+        if (desc.isEmpty()) {
+            throw new AmigoBotException("Ay caramba! The description of a deadline cannot be empty.");
+        }
         if (byStr.isEmpty()) {
             throw new AmigoBotException("Ay caramba! The /by date of a deadline cannot be empty.");
         }
@@ -211,17 +218,20 @@ public class AmigoBot {
         if (arguments.isEmpty()) {
             throw new AmigoBotException("Ay caramba! The description of an event cannot be empty.");
         }
-        if (!arguments.contains(" /from ")) {
+        if (!arguments.matches("(?i).*\\s*/from\\s+.*")) {
             throw new AmigoBotException(
                     "Ay caramba! An event needs a /from time. Example: event meeting /from Mon 2pm /to 4pm");
         }
-        String[] parts = arguments.split(" /from ", 2);
+        String[] parts = arguments.split("\\s*/from\\s+", 2);
         String desc = parts[0].trim();
-        if (!parts[1].contains(" /to ")) {
+        if (desc.isEmpty()) {
+            throw new AmigoBotException("Ay caramba! The description of an event cannot be empty.");
+        }
+        if (!parts[1].matches("(?i).*\\s*/to\\s+.*")) {
             throw new AmigoBotException(
                     "Ay caramba! An event needs a /to time. Example: event meeting /from Mon 2pm /to 4pm");
         }
-        String[] timeParts = parts[1].split(" /to ", 2);
+        String[] timeParts = parts[1].split("\\s*/to\\s+", 2);
         String from = timeParts[0].trim();
         String to = timeParts[1].trim();
         if (from.isEmpty()) {
