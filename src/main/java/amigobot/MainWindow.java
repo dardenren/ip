@@ -38,11 +38,12 @@ public class MainWindow extends AnchorPane {
     public void initialize() {
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
 
-        // Bind background image and overlay to window size
-        backgroundImage.fitWidthProperty().bind(this.widthProperty());
-        backgroundImage.fitHeightProperty().bind(this.heightProperty());
-        bgOverlay.widthProperty().bind(this.widthProperty());
-        bgOverlay.heightProperty().bind(this.heightProperty());
+        // Bind background image and overlay to the actual root pane's size
+        AnchorPane root = (AnchorPane) scrollPane.getParent();
+        backgroundImage.fitWidthProperty().bind(root.widthProperty());
+        backgroundImage.fitHeightProperty().bind(root.heightProperty());
+        bgOverlay.widthProperty().bind(root.widthProperty());
+        bgOverlay.heightProperty().bind(root.heightProperty());
 
         dialogContainer.getChildren().add(
                 DialogBox.getBotDialog("Hola amigo! I'm AmigoBot, your friendly capybara assistant!\n"
